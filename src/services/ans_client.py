@@ -87,7 +87,7 @@ class AnsDataClient:
                             "url": f"{year_url}{file_link}"
                         })
         
-        # We sort by Year (Descending) first, then Quarter (Descending).
+        # Sort by Year (Descending) first, then Quarter (Descending).
         found_files.sort(key=lambda x: (x['year'], x['quarter']), reverse=True)
         return found_files
 
@@ -117,7 +117,7 @@ class AnsDataClient:
         """
         Main method to orchestrate the process.
         """
-        # 1. Get the list
+        #  Get the list
         candidates = self.get_available_quarters()
         
         if not candidates:
@@ -133,10 +133,6 @@ class AnsDataClient:
         for t in targets:
             print(f" - {t['year']} Q{t['quarter']}: {t['filename']}")
 
-        # 3. Download them
+        # Download them
         for item in targets:
             self._download_file(item['url'], item['filename'])
-
-if __name__ == "__main__":
-    client = AnsDataClient()
-    client.download_last_3_quarters()
