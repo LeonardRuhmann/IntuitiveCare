@@ -56,7 +56,6 @@ class AnsDataClient:
         """
         print(f"Scanning {self.BASE_URL}...")
         root_links = self._get_links(self.BASE_URL)
-        print(root_links)
 
         found_files = []
 
@@ -68,7 +67,6 @@ class AnsDataClient:
 
         year_folders.sort(reverse=True)
 
-        print(year_folders)
         
         for year in year_folders:
             year_url = f"{self.BASE_URL}{year}/"
@@ -123,8 +121,6 @@ class AnsDataClient:
         if not candidates:
             print("No files found.")
             return
-
-        print(candidates)
 
         # Slice the top 3 (since it's already sorted)
         targets = candidates[:3]
