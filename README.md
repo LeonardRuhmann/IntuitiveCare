@@ -89,7 +89,7 @@ Ao encontrar registros inválidos (ex: CNPJ incorreto ou Razão Social vazia), a
 
 #### **Decisão 11: Estratégia de Join (In-Memory)**
 Para cruzar dados financeiros e cadastrais, optou-se pelo processamento em memória com Pandas, diferindo da extração incremental.
-* **Justificativa:** O dataset final consolidado (~18k linhas) é pequeno o suficiente para memória RAM.
+* **Justificativa:** O dataset final consolidado (~44k linhas) é pequeno o suficiente para memória RAM.
 * **✅ Prós (KISS):** Simplicidade e rapidez de implementação. Frameworks distribuídos (Spark) seriam *over-engineering*.
 * **⚠️ Contras:** Se o dataset final crescesse para a casa dos Gigabytes, essa etapa precisaria ser refatorada para chunks.
 
