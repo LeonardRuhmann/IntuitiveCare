@@ -57,7 +57,7 @@ Siga os passos abaixo para rodar o pipeline em seu ambiente local.
 
 4.  **Execute o Pipeline:**
     ```bash
-    python src/main.py
+    python -m src.main
     ```
 
 5.  **Verifique os Resultados:**
