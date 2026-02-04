@@ -41,17 +41,22 @@ class ZipProcessor:
                     
                     df = pd.read_csv(f, encoding='utf-8', sep=';', dtype=str)
 
+
+
+                    if 'DESCRICAO' in df.columns:
+                        df['DESCRICAO'] = df['DESCRICAO'].str.strip()
+
+                        target_pattern = "Despesas com Eventos / Sinistros"
+
+                        mask = df['DESCRICAO'].str.contains(target_pattern, case=False, na=False, regex=False)
+
+                        df_filtered = df[mask].copy()
+
+
                     numeric_cols = ['VL_SALDO_INICIAL', 'VL_SALDO_FINAL']
                     for col in numeric_cols:
-                        if col in df.columns:
-                            df[col] = df[col].apply(self._to_float)
-                    print(f"Loaded {len(df)} rows. Transforming...")
-
-                    target_pattern = r"Despesas com Eventos\s*/\s*Sinistros"
-
-                    mask = df['DESCRICAO'].str.contains(target_pattern, case=False, na=False, regex=True)
-
-                    df_filtered = df[mask].copy()
+                        if col in df_filtered.columns:
+                            df_filtered[col] = df_filtered[col].apply(self._to_float)
                     
                     print(f"Filtered: {len(df_filtered)} rows match regex '{target_pattern}'.")
                     return df_filtered
