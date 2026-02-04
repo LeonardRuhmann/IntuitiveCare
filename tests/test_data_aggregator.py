@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import sys
 
-# Adiciona o diretório raiz ao path para importar corretamente
+# Add project root to sys.path to ensure correct imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.services.data_aggregator import DataAggregator
@@ -51,7 +51,7 @@ class TestDataAggregator(unittest.TestCase):
         
         mock_to_csv.assert_called_once()
         
-        # Verifica se tentou criar o ZIP (sem criar de verdade)
+        # Verify if ZIP creation was attempted (mocked execution)
         mock_zipfile.assert_called_once()
 
     @patch("src.services.data_aggregator.pd.read_csv")
@@ -63,7 +63,7 @@ class TestDataAggregator(unittest.TestCase):
         
         self.assertIsNone(result)
 
-    @patch("src.services.data_aggregator.zipfile.ZipFile") # <--- NOVO MOCK
+    @patch("src.services.data_aggregator.zipfile.ZipFile")
     @patch("src.services.data_aggregator.pd.read_csv")
     @patch("src.services.data_aggregator.pd.DataFrame.to_csv")
     def test_numeric_conversion_and_robustness(self, mock_to_csv, mock_read_csv, mock_zipfile):
