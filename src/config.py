@@ -1,6 +1,6 @@
 import os
 
-# --- Caminhos ---
+# --- Paths ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
@@ -11,6 +11,6 @@ OUTPUT_DIR = os.path.join(PROJECT_ROOT, "output")
 ANS_BASE_URL = "https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/"
 CADASTRE_URL = "https://dadosabertos.ans.gov.br/FTP/PDA/operadoras_de_plano_de_saude_ativas/Relatorio_cadop.csv"
 
-# --- Processamento ---
+# --- Processing ---
 CSV_SEP = ";"
 CSV_ENCODING = "utf-8"
