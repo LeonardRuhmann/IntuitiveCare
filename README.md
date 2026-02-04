@@ -71,9 +71,9 @@ Siga os passos abaixo para rodar o pipeline em seu ambiente local.
 
 Abaixo detalho as decisões de design, trade-offs escolhidos e estratégias de resolução de problemas adotadas durante o desenvolvimento.
 
-## 1. Pipeline de Extração e Transformação (ETL)
+##  Pipeline de Extração e Transformação (ETL)
 
-### 1.1. Acesso à API e Arquitetura
+### Acesso à API e Arquitetura
 
 #### **Decisão 1: Separação de Responsabilidades (`Services`)**
 Criei uma pasta `services` e a classe `AnsDataClient` para isolar a lógica de conexão.
@@ -101,7 +101,7 @@ Utilizei `stream=True` nas requisições HTTP.
 
 ---
 
-### 1.2. Processamento e Transformação
+###  Processamento e Transformação
 
 #### **Decisão 5: Processamento Incremental (Iterativo)**
 O script itera sobre os arquivos ZIP baixados um por um, descartando os dados brutos da memória após a extração.
@@ -122,7 +122,7 @@ Leitura forçada em `UTF-8` e conversão de `1.000,00` para `1000.0`.
 
 ---
 
-### 1.3. Consolidação e Limpeza
+###  Consolidação e Limpeza
 
 #### **Decisão 8: Tratamento de Valores Zerados vs. Negativos**
 Remoção física de registros com valor `0.0`.
@@ -140,9 +140,9 @@ Uso de `pd.to_datetime(errors='coerce')` em vez de Regex manual.
 
 ---
 
-## 2. Enriquecimento e Qualidade de Dados
+##  Enriquecimento e Qualidade de Dados
 
-### 2.1. Validação (Quarantine Pattern)
+###  Validação (Quarantine Pattern)
 
 #### **Decisão 10: Segregação (Quarentena) vs. Exclusão**
 Ao encontrar registros inválidos (ex: CNPJ incorreto ou Razão Social vazia), a decisão foi **não excluir**, mas separar em `data_quarantine.csv`.
@@ -156,7 +156,7 @@ Ao encontrar registros inválidos (ex: CNPJ incorreto ou Razão Social vazia), a
 
 ---
 
-### 2.2. Enriquecimento de Dados (Cadastral)
+###  Enriquecimento de Dados (Cadastral)
 
 #### **Decisão 11: Estratégia de Join (In-Memory)**
 Para cruzar dados financeiros e cadastrais, optou-se pelo processamento em memória com Pandas, diferindo da extração incremental.
@@ -172,7 +172,7 @@ Uso de `REG_ANS` como chave primária de join, ao invés do CNPJ solicitado.
 
 ---
 
-### 2.3. Resolução de Anomalias
+###  Resolução de Anomalias
 
 Durante a validação, foram tomadas decisões específicas para "Sanitizar" os dados:
 
@@ -188,3 +188,13 @@ Durante a validação, foram tomadas decisões específicas para "Sanitizar" os 
 3.  **Duplicidade no Cadastro**
     * **Ação:** Deduplicação prévia por `REGISTRO_OPERADORA`.
     * **Justificativa:** Evita a explosão de linhas (Produto Cartesiano) no join 1:N.
+
+###  Estratégia de Agregação e Ordenação
+
+Para a geração do relatório final, optou-se pelo uso de **Processamento em Memória (In-Memory)** utilizando a biblioteca Pandas.
+
+* **Estratégia:** O cálculo de métricas (Soma, Desvio Padrão e Média Trimestral) e a ordenação final foram realizados carregando o dataset consolidado (~50k registros) na memória RAM.
+* **Algoritmo de Ordenação:** Utilizou-se o método `sort_values` do Pandas, que implementa uma variação otimizada do *Quicksort* (Complexidade média $O(N \log N)$).
+* **Justificativa do Trade-off:**
+    * **Volume de Dados vs. Complexidade:** O volume total de dados processados resulta em um dataframe de baixo consumo de memória (< 100MB). Implementar algoritmos de ordenação externa (*External Merge Sort*) ou utilizar processamento distribuído (Spark) adicionaria complexidade de infraestrutura desnecessária (*Over-engineering*) para o escopo atual.
+    * **Performance:** A operação em memória elimina o *overhead* de I/O de disco, resultando em um tempo de execução de milissegundos para a etapa de agregação.

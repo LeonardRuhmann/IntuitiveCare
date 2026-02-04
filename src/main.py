@@ -5,6 +5,7 @@ from src.services.zip_processor import ZipProcessor
 from src.services.data_consolidator import DataConsolidator
 from src.services.data_validator import DataValidator
 from src.services.data_enricher import DataEnricher
+from src.services.data_aggregator import DataAggregator
 
 def main():
     print("--- STARTING ETL PIPELINE ---")
@@ -73,10 +74,16 @@ def main():
     print("\n--- Data Validation ---")
     validator = DataValidator(output_dir='output')
    
-    if enriched_path and os.path.exists(enriched_path):
-        validator.validate_and_split(enriched_path)
+    clean_path, quarantine_path = validator.validate_and_split(enriched_path)
+    
+    # --- AGGREGATION ---
+    print("\n--- Aggregation Strategy ---")
+    aggregator = DataAggregator()
+    
+    if clean_path and os.path.exists(clean_path):
+        aggregator.aggregate_data(clean_path)
     else:
-        print("Error: Enriched file not found.")
+        print("   [Error] No clean data available for aggregation.")
 
 if __name__ == "__main__":
     main()

@@ -15,7 +15,7 @@ def mock_zip_path(tmp_path):
     Creates a temporary ZIP file containing a valid CSV (UTF-8) for testing.
     """
     csv_content = """DATA;REG_ANS;CD_CONTA_CONTABIL;DESCRICAO;VL_SALDO_FINAL
-2025-01-01;123456;1111;Despesas com Eventos/Sinistros;100,50
+2025-01-01;123456;1111;Despesas com Eventos / Sinistros;100,50
 2025-01-01;123456;2222;Outra Despesa;200,00"""
     
     zip_file = tmp_path / "test_file.zip"
