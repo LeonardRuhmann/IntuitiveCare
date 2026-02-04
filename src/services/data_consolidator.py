@@ -1,9 +1,10 @@
 import pandas as pd
 import os
 import zipfile
+from src import config
 
 class DataConsolidator:
-    def __init__(self, output_dir="output"):
+    def __init__(self, output_dir=config.OUTPUT_DIR):
         self.output_dir = output_dir
         os.makedirs(self.output_dir, exist_ok=True)
 
@@ -79,7 +80,7 @@ class DataConsolidator:
         print(f"Saving final file to {zip_filename}...")
         
         # Save CSV
-        df.to_csv(csv_path, index=False, sep=';', encoding='utf-8')
+        df.to_csv(csv_path, index=False, sep=config.CSV_SEP, encoding=config.CSV_ENCODING)
         
         # Zip it
         with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zf:

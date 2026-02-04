@@ -1,9 +1,10 @@
 import pandas as pd
 import os
 import zipfile
+from src import config
 
 class DataAggregator:
-    def __init__(self, output_dir='output'):
+    def __init__(self, output_dir=config.OUTPUT_DIR):
         self.output_dir = output_dir
 
     def aggregate_data(self, clean_csv_path: str):
@@ -15,9 +16,9 @@ class DataAggregator:
         
         # Load data (ensure correct types)
         try:
-            df = pd.read_csv(clean_csv_path, sep=';', encoding='utf-8')
-        except FileNotFoundError:
-            print(f"   [Error] File {clean_csv_path} not found.")
+            df = pd.read_csv(clean_csv_path, sep=config.CSV_SEP, encoding=config.CSV_ENCODING)
+        except Exception as e:
+            print(f"   [Error] Failed to read file {clean_csv_path}: {e}")
             return None
 
         # remove columns with '_y'
@@ -88,7 +89,7 @@ class DataAggregator:
 
         
         # Formatting float to 2 decimal places for readability
-        summary.to_csv(output_csv_path, index=False, sep=';', float_format='%.2f', encoding='utf-8')
+        summary.to_csv(output_csv_path, index=False, sep=config.CSV_SEP, float_format='%.2f', encoding=config.CSV_ENCODING)
         print(f"    Saved CSV to {output_csv_path}")
 
         zip_filename = 'Teste_Leonardo_Ruhmann.zip'

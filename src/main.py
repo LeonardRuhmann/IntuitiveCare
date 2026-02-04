@@ -6,6 +6,7 @@ from src.services.data_consolidator import DataConsolidator
 from src.services.data_validator import DataValidator
 from src.services.data_enricher import DataEnricher
 from src.services.data_aggregator import DataAggregator
+from src import config
 
 def main():
     print("--- STARTING ETL PIPELINE ---")
@@ -61,7 +62,7 @@ def main():
     enricher = DataEnricher()
     
     # Input: The output from consolidator
-    input_for_enricher = "output/consolidado_despesas.zip" 
+    input_for_enricher = os.path.join(config.OUTPUT_DIR, "consolidado_despesas.zip")
     
     if os.path.exists(input_for_enricher):
         # This generates 'output/enriched_data.zip'
@@ -72,7 +73,7 @@ def main():
 
     # --- VALIDATION ---
     print("\n--- Data Validation ---")
-    validator = DataValidator(output_dir='output')
+    validator = DataValidator(output_dir=config.OUTPUT_DIR)
    
     clean_path, quarantine_path = validator.validate_and_split(enriched_path)
     

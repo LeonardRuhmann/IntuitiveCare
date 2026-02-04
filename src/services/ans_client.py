@@ -5,10 +5,10 @@ import re
 import os
 from typing import List, Dict
 
-class AnsDataClient:
-    BASE_URL = "https://dadosabertos.ans.gov.br/FTP/PDA/demonstracoes_contabeis/"
+from src import config
 
-    def __init__(self, download_dir="downloads"):
+class AnsDataClient:
+    def __init__(self, download_dir=config.DOWNLOAD_DIR):
         self.download_dir = download_dir
         os.makedirs(download_dir, exist_ok=True)
 
@@ -54,8 +54,8 @@ class AnsDataClient:
         Scans years and files to build a list of all available data.
         Returns sorted list: Newest first.
         """
-        print(f"Scanning {self.BASE_URL}...")
-        root_links = self._get_links(self.BASE_URL)
+        print(f"Scanning {config.ANS_BASE_URL}...")
+        root_links = self._get_links(config.ANS_BASE_URL)
 
         found_files = []
 
@@ -69,7 +69,7 @@ class AnsDataClient:
 
         
         for year in year_folders:
-            year_url = f"{self.BASE_URL}{year}/"
+            year_url = f"{config.ANS_BASE_URL}{year}/"
             # Get all files inside that year
             files_in_year = self._get_links(year_url)
         
@@ -138,8 +138,7 @@ class AnsDataClient:
         Downloads the Active Operators Cadastre (Relatorio_Cadop).
         Target URL: https://dadosabertos.ans.gov.br/FTP/PDA/operadoras_de_plano_de_saude_ativas/Relatorio_cadop.csv
         """
-        base_url = "https://dadosabertos.ans.gov.br/FTP/PDA/operadoras_de_plano_de_saude_ativas/Relatorio_cadop.csv"
         filename = "Relatorio_Cadop.csv"
         
-        self._download_file(base_url, filename)
+        self._download_file(config.CADASTRE_URL, filename)
         return os.path.join(self.download_dir, filename)

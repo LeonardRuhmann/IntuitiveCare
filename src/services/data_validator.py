@@ -1,9 +1,10 @@
 import pandas as pd
 import os
 from src.utils.validators import validate_cnpj
+from src import config
 
 class DataValidator:
-    def __init__(self, output_dir='output'):
+    def __init__(self, output_dir=config.OUTPUT_DIR):
         self.output_dir = output_dir
 
     def validate_and_split(self, input_zip_path: str):
@@ -15,7 +16,7 @@ class DataValidator:
         
         # Pandas can read directly from ZIP if it contains one CSV
         try:
-            df = pd.read_csv(input_zip_path, compression='zip', sep=';', encoding='utf-8', dtype=str)
+            df = pd.read_csv(input_zip_path, compression='zip', sep=config.CSV_SEP, encoding=config.CSV_ENCODING, dtype=str)
         except Exception as e:
             print(f"   [Error] Could not read ZIP file: {e}")
             return None
@@ -59,8 +60,8 @@ class DataValidator:
         clean_path = os.path.join(self.output_dir, 'data_clean.csv')
         quarantine_path = os.path.join(self.output_dir, 'data_quarantine.csv')
 
-        clean_df.to_csv(clean_path, sep=';', index=False, encoding='utf-8')
-        quarantine_df.to_csv(quarantine_path, sep=';', index=False, encoding='utf-8')
+        clean_df.to_csv(clean_path, sep=config.CSV_SEP, index=False, encoding=config.CSV_ENCODING)
+        quarantine_df.to_csv(quarantine_path, sep=config.CSV_SEP, index=False, encoding=config.CSV_ENCODING)
 
         print(f"    Done.")
         print(f"   -> Clean Rows: {len(clean_df)} (Saved to {clean_path})")
