@@ -210,3 +210,27 @@ Para a geração do relatório final, optou-se pelo uso de **Processamento em Me
 * **Justificativa do Trade-off:**
     * **Volume de Dados vs. Complexidade:** O volume total de dados processados resulta em um dataframe de baixo consumo de memória (< 100MB). Implementar algoritmos de ordenação externa (*External Merge Sort*) ou utilizar processamento distribuído (Spark) adicionaria complexidade de infraestrutura desnecessária (*Over-engineering*) para o escopo atual.
     * **Performance:** A operação em memória elimina o *overhead* de I/O de disco, resultando em um tempo de execução de milissegundos para a etapa de agregação.
+
+---
+
+## 🛠️ Case Study: Integridade de Dados & Correção de Anomalia
+
+Durante o desenvolvimento do pipeline de ETL, foi identificado um desafio crítico relacionado à natureza contábil dos dados da ANS. Esta seção documenta a análise e a solução implementada.
+
+### 🐛 A Anomalia dos "71 Bilhões"
+
+**O Problema:**
+Ao realizar a primeira agregação dos arquivos trimestrais (`1T2025.csv`, `2T2025.csv`, `3T2025.csv`), o pipeline reportou um total de despesas para a operadora *Bradesco Saúde* superior a **R$ 71 Bilhões**. Este valor representava uma anomalia estatística quando comparado ao histórico de mercado da empresa.
+
+**Investigação (RCA - Root Cause Analysis):**
+A análise exploratória revelou que os arquivos de Demonstrações Contábeis da ANS seguem o regime de **competência acumulada (Year-to-Date / YTD)**.
+* *Evidência:* A conta `411111061` (Despesas com Eventos) apresentava saldo crescente sem "zerar" a cada trimestre.
+* *Erro Original:* A estratégia inicial de somar (`SUM`) os valores de todos os arquivos resultava na duplicação (e triplicação) dos saldos dos primeiros meses do ano.
+
+**Solução Implementada (The Snapshot Strategy):**
+Para garantir a integridade dos números, o pipeline de agregação (`src/services/data_aggregator.py`) foi refatorado para operar com uma lógica híbrida:
+
+1.  **Métricas de Volume (Total de Despesas):** Utiliza-se apenas o **Snapshot Final** (último trimestre disponível). O código filtra o dataset pelo `MAX(DATA_LANCAMENTO)` antes de realizar a soma, corrigindo o total para o valor real de **~R$ 36.5 Bilhões**.
+2.  **Métricas de Volatilidade (Desvio Padrão):** Mantém-se o histórico completo para calcular a variação real entre as contas ao longo do tempo.
+
+> **Status:** ✅ Resolvido no commit `fix/aggregation-ytd-logic`.
