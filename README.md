@@ -18,7 +18,7 @@ O pipeline executa as seguintes etapas sequencialmente:
 5.  **Validação (Quality Gate):** Separa registros inválidos ou inconsistentes em um arquivo de "Quarentena", mantendo a integridade contábil dos dados válidos.
 6.  **Agregação e Entrega:**
     * Calcula totais, médias trimestrais e desvio padrão.
-    * Gera o arquivo final compactado `Teste_{Nome}.zip`.
+    * Gera o arquivo final compactado `Teste_Leonardo_Ruhmann.zip`.
 
 ---
 
