@@ -11,6 +11,10 @@ def validate_cnpj(cnpj: str) -> bool:
     #  Remove non-digits
     cnpj = re.sub(r'[^0-9]', '', str(cnpj))
 
+    # If it's a valid but stripped CNPJ, this makes it 14 digits again
+    if 10 <= len(cnpj) < 14:
+        cnpj = cnpj.zfill(14)
+    
     #  Check length and repetitive digits (ex: 00000000000000, 11111111111111, etc..)
     if len(cnpj) != 14 or len(set(cnpj)) == 1:
         return False

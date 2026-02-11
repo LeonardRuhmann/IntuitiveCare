@@ -21,3 +21,12 @@ def test_cnpj_repeated():
 def test_cnpj_empty():
     assert validate_cnpj("") is False
     assert validate_cnpj(None) is False
+
+def test_cnpj_stripped_zeros():
+    # Caso real: CNPJ que perdeu os zeros (12 dígitos)
+    # Ex: 00687509000135 virou 687509000135
+    cnpj_stripped = "6990590000123"
+    
+    # Se o seu validador consertar (com zfill), deve ser True
+    # Se o seu validador apenas rejeitar, deve ser False (e ir para a quarentena)
+    assert validate_cnpj(cnpj_stripped) is True

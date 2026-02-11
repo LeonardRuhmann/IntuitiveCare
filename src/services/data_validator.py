@@ -25,6 +25,9 @@ class DataValidator:
             return None
 
         logger.info(f"    Validating {len(df)} rows...")
+        
+        # We strip '.0' in case pandas read it as a float initially
+        df['CNPJ'] = df['CNPJ'].fillna('').astype(str).str.replace('.0', '', regex=False).str.zfill(14)
 
         # Replace comma with dot (standardize)
         df['ValorDespesas'] = df['ValorDespesas'].str.replace(',', '.', regex=False)
