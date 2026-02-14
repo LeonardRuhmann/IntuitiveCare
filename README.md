@@ -248,7 +248,6 @@ Optou-se pela **Opção B: Tabelas normalizadas** seguindo o modelo *Star Schema
 | :--- | :--- | :--- |
 | `dim_operadoras` | Dimensão | Dados cadastrais únicos por operadora |
 | `fact_despesas_eventos` | Fato | Registros financeiros trimestrais |
-| `fact_despesas_agregadas` | Resumo | Totais pré-calculados para analytics |
 
 * **Justificativa:**
     * **Volume de dados esperado:** A tabela fato cresce a cada trimestre, enquanto a dimensão é estável. Duplicar dados cadastrais em cada linha da fato seria desperdício.
@@ -309,7 +308,7 @@ A tabela `temp_operadoras` reflete **todas as 20 colunas** do CSV original (`Rel
 | Inconsistência | Estratégia | Justificativa |
 | :--- | :---: | :--- |
 | **Valores NULL em campos obrigatórios** | Rejeição via `WHERE` | Registros sem `reg_ans` são filtrados pelo `WHERE reg_ans IN (...)`, pois `NULL` nunca satisfaz a condição `IN`. Garante integridade referencial. |
-| **Strings em campos numéricos** | Conversão com `REPLACE` + `CAST` | O formato brasileiro (`1.234,56`) é convertido para o padrão SQL (`1234.56`). Se a conversão falhar, o `CAST` retorna `NULL`, isolando o erro sem quebrar o batch. |
+| **Strings em campos numéricos** | Conversão com `REPLACE` + `CAST` | A vírgula decimal (`1234,56`) é convertida para ponto (`1234.56`) via `REPLACE`. Se a conversão falhar, o `CAST` retorna `NULL`, isolando o erro sem quebrar o batch. |
 | **Datas em formatos inconsistentes** | `STR_TO_DATE` com formato explícito | Força o padrão `%Y-%m-%d`. Datas fora deste formato retornam `NULL` e são tratadas pelo `NOT NULL` constraint na tabela final, rejeitando o registro. |
 | **Operadoras duplicadas no CSV** | `INSERT IGNORE` + `SELECT DISTINCT` | O `DISTINCT` elimina duplicatas na leitura; o `INSERT IGNORE` garante idempotência caso a mesma operadora já exista na tabela. |
 | **Encoding incorreto** | `CHARACTER SET 'utf8'` | Forçamos UTF-8 na leitura para preservar acentos e caracteres especiais. |
@@ -322,7 +321,7 @@ A tabela `temp_operadoras` reflete **todas as 20 colunas** do CSV original (`Rel
 
 > **Desafio:** Considerar operadoras que podem não ter dados em todos os trimestres.
 
-Na Query 1 (Crescimento %), optou-se por **excluir operadoras cujo valor no primeiro trimestre é zero** (`WHERE first_q_val > 0`).
+Na Query 1 (Crescimento %), optou-se por **excluir operadoras cujo valor no primeiro trimestre é zero** (`WHERE q1_ytd > 0`).
 
 * **Justificativa:** Valor zero no trimestre inicial indica inatividade ou ausência de registro. Calcular crescimento percentual a partir de zero resultaria em divisão por zero ou crescimento infinito, distorcendo o ranking.
 * **✅ Prós:** Resultados matematicamente válidos e representativos do mercado ativo.
@@ -355,7 +354,7 @@ Optou-se pela **Abordagem A: CTEs (Common Table Expressions) com Flags**, ao inv
 
 
 * **Justificativa:**
-    * **Legibilidade:** Cada CTE (`QuarterlyAverages`, `OperatorExpenses`, `AboveAverageFlags`) tem uma responsabilidade única e nomeada, funcionando como "etapas" de um pipeline lógico.
+    * **Legibilidade:** Cada CTE (`MarketAverage`, `OperatorYTD`, `AboveAverage`) tem uma responsabilidade única e nomeada, funcionando como "etapas" de um pipeline lógico.
     * **Manutenibilidade:** Alterar o limiar de 2 para 3 trimestres exige mudar apenas `HAVING SUM(...) >= 3`.
     * **Performance:** Window Functions leem a tabela fato apenas 1 vez, mas a clareza do código foi priorizada.
 
@@ -375,7 +374,7 @@ A análise exploratória revelou que os arquivos de Demonstrações Contábeis d
 Para garantir a integridade dos números tanto na agregação Python quanto na análise SQL, adotamos abordagens complementares:
 
 1.  **No Pipeline Python (Data Aggregator):**
-    Utilizamos a **Snapshot Strategy** para métricas de volume. O código filtra o dataset pelo `MAX(DATA_LANCAMENTO)` (último trimestre) antes de realizar a soma, corrigindo o total exportado para o valor real de **~R$ 36.5 Bilhões**.
+    Utilizamos a **Snapshot Strategy** para métricas de volume. O código filtra o dataset pelo `MAX(DATA)` (último trimestre) antes de realizar a soma, corrigindo o total exportado para o valor real de **~R$ 36.5 Bilhões**.
 
 2.  **Nas Queries SQL (Analytics):**
     Implementamos a lógica de **Desacumulação Incremental** diretamente no banco de dados para análises temporais:

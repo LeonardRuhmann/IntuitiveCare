@@ -27,17 +27,3 @@ CREATE TABLE IF NOT EXISTS fact_despesas_eventos (
         REFERENCES dim_operadoras(reg_ans)
         ON DELETE CASCADE
 );
-
--- Table: fact_despesas_agregadas (Summary/Aggregate)
-CREATE TABLE IF NOT EXISTS fact_despesas_agregadas (
-    reg_ans VARCHAR(20),
-    ano_trimestre VARCHAR(20),
-    total_despesas NUMERIC(18,2),
-    uf VARCHAR(2),
-    PRIMARY KEY (reg_ans, ano_trimestre),
-
-    CONSTRAINT fk_agregado_operadora
-        FOREIGN KEY (reg_ans)
-        REFERENCES dim_operadoras(reg_ans)
-        ON DELETE CASCADE
-);
