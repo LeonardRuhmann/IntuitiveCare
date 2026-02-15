@@ -17,3 +17,10 @@ six==1.17.0
 soupsieve==2.8.3
 typing_extensions==4.15.0
 urllib3==2.6.3
+
+# API (FastAPI + MySQL)
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+sqlalchemy==2.0.25
+pymysql==1.1.0
+cryptography==46.0.5
