@@ -358,6 +358,34 @@ Optou-se pela **Abordagem A: CTEs (Common Table Expressions) com Flags**, ao inv
 
 ---
 
+## 🧠 Decisões Técnicas e Trade-offs (Backend)
+
+###  Escolha do Framework
+* **Opção A: Flask** (Micro-framework, simples, síncrono)
+* **Opção B: FastAPI** (Moderno, assíncrono, validação automática)
+* **🏆 Escolha: FastAPI**
+    * **Justificativa:** Para este projeto, o FastAPI oferece **documentação automática (Swagger)**, que cumpre o requisito de documentação da API sem esforço extra. Além disso, a validação de dados via **Pydantic** reduz bugs de entrada, e o suporte nativo a **async** prepara a aplicação para alta performance, mesmo que o volume atual (~1.109 operadoras) não exija isso criticamente. A curva de aprendizado é baixa e o código resultante é mais limpo.
+
+###  Estratégia de Paginação
+* **Opção A: Offset-based** (`LIMIT 10 OFFSET 20`)
+* **Opção B: Cursor-based** (`WHERE id > last_seen_id`)
+* **Opção C: Keyset pagination** (Cursor composto)
+* **🏆 Escolha: Opção A (Offset-based)**
+    * **Justificativa:** O volume de dados é pequeno (~1.109 registros), tornando o **custo do OFFSET negligível** para o banco de dados. Esta abordagem simplifica drasticamente a implementação no frontend, permitindo **navegação direta para qualquer página** ("Ir para a página 5"), o que oferece uma UX superior para tabelas administrativas em comparação à navegação sequencial ("Próximo/Anterior") exigida pelo cursor-based.
+
+###  Cache vs Queries Diretas
+* **Opção A: Calcular sempre na hora** (Query SQL direta)
+* **Opção B: Cachear resultado por X minutos** (Redis/In-memory)
+* **Opção C: Pré-calcular e armazenar em tabela** (Tabela agregada via cronjob)
+* **🏆 Escolha: Opção A (Calcular sempre na hora)**
+    * **Justificativa:** A rota `/api/estatisticas` agrega dados de apenas ~42 mil linhas. O MySQL executa essas agregações (`SUM`, `AVG`) em **milissegundos**. Adicionar uma camada de cache traria complexidade de invalidação desnecessária ("cache invalidation is hard"), já que os dados mudam apenas na importação trimestral. A consistência em tempo real é garantida sem custo de performance perceptível.
+
+###  Estrutura de Resposta da API
+* **Opção A: Apenas os dados** (`[{...}, {...}]`)
+* **Opção B: Dados + metadados** (`{data: [...], total: 100, page: 1, limit: 10}`)
+* **🏆 Escolha: Opção B (Dados + metadados)**
+    * **Justificativa:** Essencial para o componente de paginação no frontend. Sem saber o `total` de registros e a `page` atual, a interface não pode desenhar a barra de paginação corretamente (ex: "Página 1 de 11"). Segue o padrão de mercado para APIs RESTful.
+
 ### 🐛 A Anomalia dos "71 Bilhões" (e a Solução SQL)
 
 **O Problema:**
