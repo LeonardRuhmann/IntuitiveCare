@@ -5,9 +5,11 @@ set -e
 # IntuitiveCare ETL + SQL Analytics — Full Pipeline
 # ============================================================
 # Usage:
-#   ./run.sh          → Runs everything (ETL + Docker + Analytics)
+#   ./run.sh          → Runs everything (ETL + Docker + Analytics + Backend + Frontend)
 #   ./run.sh etl      → Runs only the Python ETL pipeline
 #   ./run.sh docker   → Runs only the Docker analytics (requires ETL output)
+#   ./run.sh server   → Starts the FastAPI Backend
+#   ./run.sh frontend → Starts the Vue.js Frontend
 #   ./run.sh down     → Stops and removes the Docker container
 # ============================================================
 
@@ -142,6 +144,33 @@ run_docker() {
 # ============================================================
 # Teardown
 # ============================================================
+# ============================================================
+# Phase 3: API & Frontend
+# ============================================================
+run_server() {
+    header "Starting API Server (FastAPI)"
+    if [ ! -d "venv" ]; then
+        fail "Virtual environment not found. Run ./run.sh etl first."
+    fi
+    source venv/bin/activate
+    log "Starting Uvicorn..."
+    uvicorn api.server:app --host 0.0.0.0 --port 8000 --reload
+}
+
+run_frontend() {
+    header "Starting Frontend (Vue.js)"
+    if [ ! -d "frontend" ]; then
+        fail "Frontend directory not found."
+    fi
+    cd frontend
+    if [ ! -d "node_modules" ]; then
+        log "Installing frontend dependencies..."
+        npm install
+    fi
+    log "Starting Vite (Dev Server)..."
+    npm run dev
+}
+
 run_down() {
     header "Stopping Docker"
     $COMPOSE_CMD down -v 2>&1
@@ -152,9 +181,11 @@ run_down() {
 # Entrypoint
 # ============================================================
 case "${1:-all}" in
-    etl)    run_etl ;;
-    docker) run_docker ;;
-    down)   run_down ;;
+    etl)      run_etl ;;
+    docker)   run_docker ;;
+    server)   run_server ;;
+    frontend) run_frontend ;;
+    down)     run_down ;;
     all)    run_etl; run_docker ;;
-    *)      echo "Usage: ./run.sh [etl|docker|down|all]"; exit 1 ;;
+    *)      echo "Usage: ./run.sh [etl|docker|server|frontend|down|all]"; exit 1 ;;
 esac
