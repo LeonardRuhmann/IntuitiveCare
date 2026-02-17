@@ -18,7 +18,7 @@ O pipeline executa as seguintes etapas sequencialmente:
 5.  **Validação (Quality Gate):** Separa registros inválidos ou inconsistentes em um arquivo de "Quarentena", mantendo a integridade contábil dos dados válidos.
 6.  **Agregação e Entrega:**
     * Calcula totais, médias trimestrais e desvio padrão.
-    * Gera o arquivo final compactado `Teste_Leonardo_Ruhmann.zip`.
+    * Gera o arquivo final compactado `ans_financial_export.zip`.
 
 ---
 
@@ -35,8 +35,8 @@ Siga os passos abaixo para rodar o pipeline ou as análises.
 
 1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/LeonardRuhmann/IntuitiveCare-Teste.git
-    cd IntuitiveCare-Teste
+    git clone https://github.com/LeonardRuhmann/ans-healthcare-analytics.git
+    cd ans-healthcare-analytics
     ```
 
 2.  **Execute o pipeline completo (recomendado):**
@@ -96,7 +96,7 @@ Siga os passos abaixo para rodar o pipeline ou as análises.
 
 4.  **Verifique os Resultados (Pós-Etapa 1):**
     Os arquivos gerados estarão na pasta `output/`:
-    * `Teste_Leonardo_Ruhmann.zip` — Arquivo final com despesas agregadas
+    * `ans_financial_export.zip` — Arquivo final com despesas agregadas
     * `data_clean.csv` — Dados validados (entrada para agregação)
     * `data_quarantine.csv` — Registros inválidos/inconsistentes (auditoria)
     * `consolidado_despesas.zip` — Dados consolidados (intermediário)
